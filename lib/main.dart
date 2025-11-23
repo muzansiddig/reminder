@@ -6,16 +6,20 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'app_constant.dart';
 import 'home_page.dart';
+import 'reminder_model.dart';
 
-final FlutterLocalNotificationsPlugin notificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+// هذا المتغير هو المستخدم الآن لجميع الاستدعاءات بدلاً من flutterLocalNotificationsPlugin
+final FlutterLocalNotificationsPlugin notificationsPlugin = FlutterLocalNotificationsPlugin();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Hive
   await Hive.initFlutter();
-  await Hive.openBox('remindersBox');
+  Hive.registerAdapter(ReminderTypeAdapter());
+  Hive.registerAdapter(ReminderCategoryAdapter());
+  Hive.registerAdapter(ReminderAdapter());
+  await Hive.openBox<Reminder>('remindersBox');
 
   // Initialize Timezone
   tz.initializeTimeZones();
@@ -24,10 +28,8 @@ Future<void> main() async {
   // Initialize Notifications
   const AndroidInitializationSettings androidInit =
       AndroidInitializationSettings('@mipmap/ic_launcher');
-
   const InitializationSettings initSettings =
       InitializationSettings(android: androidInit);
-
   await notificationsPlugin.initialize(initSettings);
 
   runApp(const MyApp());
